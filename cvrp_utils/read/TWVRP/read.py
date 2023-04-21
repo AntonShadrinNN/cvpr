@@ -30,7 +30,7 @@ class Problem:
         return Point.distance(p1, p2)
 
 
-def parse(path: str) -> Problem:
+def load(path: str) -> Problem:
     problem = Problem()
     with open(path, "r", encoding="utf-8") as instance:
         data = instance.readlines()
