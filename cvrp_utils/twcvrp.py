@@ -1,8 +1,7 @@
-from .read.TWVRP.read import Problem
+from .read.TWRP import Problem
 
 
 def split_roads(individual, data: Problem) -> list[list]:
-
     vehicle_capacity = data.capacity
     depart_due_time = data.due_dates[data.depots[0]]
 
@@ -12,9 +11,9 @@ def split_roads(individual, data: Problem) -> list[list]:
     time_elapsed = 0
     previous_cust_id = 1
     for customer_id in individual:
-        demand = data.demands[customer_id-1]
+        demand = data.demands[customer_id - 1]
         updated_vehicle_load = vehicle_load + demand
-        service_time = data.service_times[customer_id-1]
+        service_time = data.service_times[customer_id - 1]
         return_time = data.get_weight(customer_id, 1)
         travel_time = data.get_weight(previous_cust_id, customer_id)
         provisional_time = time_elapsed + travel_time + service_time + return_time
@@ -42,7 +41,6 @@ def split_roads(individual, data: Problem) -> list[list]:
 
 
 def get_fitness(individual, cost: float, p: Problem):
-
     transport_cost = cost  # cost of moving 1 vehicle for 1 unit
     vehicle_setup_cost = 100  # cost of adapting new vehicle
     wait_penalty = 1.0  # penalty for arriving too early
@@ -69,15 +67,15 @@ def get_fitness(individual, cost: float, p: Problem):
                 # Calculate time cost
                 arrival_time = elapsed_time + distance
 
-                waiting_time = max(p.ready_times[cust_id-1] - arrival_time, 0)
-                delay_time = max(arrival_time - p.due_dates[cust_id-1], 0)
+                waiting_time = max(p.ready_times[cust_id - 1] - arrival_time, 0)
+                delay_time = max(arrival_time - p.due_dates[cust_id - 1], 0)
                 time_cost = wait_penalty * waiting_time + delay_penalty * delay_time
 
                 # Update sub-route time cost
                 sub_route_time_cost += time_cost
 
                 # Update elapsed time
-                service_time = p.service_times[cust_id-1]
+                service_time = p.service_times[cust_id - 1]
                 elapsed_time = arrival_time + service_time
 
                 # Update last customer ID
@@ -91,6 +89,5 @@ def get_fitness(individual, cost: float, p: Problem):
             sub_route_cost = sub_route_time_cost + sub_route_transport_cost
             # Update total cost`
             total_cost += sub_route_cost
-
 
     return len(route), total_cost

@@ -2,13 +2,13 @@
 from typing import Any
 
 
-def split_roads(chr, p) -> list[list]:
+def split_roads(chromosome, p) -> list[list]:
     route: list[list] = []
     sub_route = []
     load = 0
     # last_customer = 0
 
-    for c in chr:
+    for c in chromosome:
         demand = p.demands[c]
 
         new_load = load + demand
@@ -21,17 +21,15 @@ def split_roads(chr, p) -> list[list]:
             sub_route = [c]
             load = demand
 
-        # last_customer = c
-
     if sub_route:
         route.append(sub_route)
 
     return route
 
 
-def get_fitness(chr: list, cost: float, p: Any) -> tuple[int, float]:
+def get_fitness(chromosome: list, cost: float, p: Any) -> tuple[int, float]:
     total_cost = 0
-    routes = split_roads(chr, p)
+    routes = split_roads(chromosome, p)
     trucks = len(routes)
     for s_route in routes:
         distance = 0
