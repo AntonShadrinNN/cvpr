@@ -1,3 +1,4 @@
+import copy
 import random
 
 
@@ -7,14 +8,18 @@ def crossover(input_ind1: list, input_ind2: list) -> tuple[list, list]:
     #  So we will modify inputs here itself and then
     #       modify the outputs too
 
-    ind1 = [x-1 for x in input_ind1]
-    ind2 = [x-1 for x in input_ind2]
+    ind1 = copy.deepcopy(input_ind1)
+    for i in range(len(ind1)):
+        ind1[i] -= 1
+    ind2 = copy.deepcopy(input_ind2)
+    for i in range(len(ind2)):
+        ind2[i] -= 1
+    # ind2 = [x-1 for x in input_ind2]
     size = min(len(ind1), len(ind2))
     a, b = random.sample(range(size), 2)
     if a > b:
         a, b = b, a
 
-    # print(f"The cutting points are {a} and {b}")
     holes1, holes2 = [True] * size, [True] * size
     for i in range(size):
         if i < a or i > b:
@@ -38,6 +43,10 @@ def crossover(input_ind1: list, input_ind2: list) -> tuple[list, list]:
         ind1[i], ind2[i] = ind2[i], ind1[i]
 
     # Finally adding 1 again to reclaim original input
-    ind1 = [x+1 for x in ind1]
-    ind2 = [x+1 for x in ind2]
+    for i in range(len(ind1)):
+        ind1[i] += 1
+
+    for i in range(len(ind2)):
+        ind2[i] += 1
+
     return ind1, ind2

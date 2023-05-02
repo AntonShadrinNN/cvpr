@@ -1,4 +1,4 @@
-from .read.TWRP import Problem
+from .read.TWVRP import Problem
 
 
 def split_roads(individual, data: Problem) -> list[list]:
@@ -36,40 +36,34 @@ def split_roads(individual, data: Problem) -> list[list]:
     if sub_route:
         # Save current sub-route before return if not empty
         route.append(sub_route)
-
     return route
 
 
-def get_fitness(individual, cost: float, p: Problem):
-    transport_cost = cost  # cost of moving 1 vehicle for 1 unit
-    vehicle_setup_cost = 100  # cost of adapting new vehicle
-    wait_penalty = 1.0  # penalty for arriving too early
-    delay_penalty = 1.5  # penalty for arriving too late
+def get_fitness(individual, p: Problem):
 
     route = split_roads(individual, p)
-    total_cost = 999999
     max_vehicles_count = p.vehicles
+    total_cost = 9999999999
 
-    # checking if we have enough vehicles
     if len(route) <= max_vehicles_count:
         total_cost = 0
         for sub_route in route:
             sub_route_time_cost = 0
-            sub_route_distance = 0
+            distance = 0
             elapsed_time = 0
             previous_cust_id = 0
             for cust_id in sub_route:
                 # Calculate section distance
-                distance = p.get_weight(previous_cust_id, cust_id)
+                delta = p.get_weight(previous_cust_id, cust_id)
                 # Update sub-route distance
-                sub_route_distance = sub_route_distance + distance
+                distance = distance + delta
 
                 # Calculate time cost
-                arrival_time = elapsed_time + distance
+                arrival_time = elapsed_time + delta
 
                 waiting_time = max(p.ready_times[cust_id - 1] - arrival_time, 0)
-                delay_time = max(arrival_time - p.due_dates[cust_id - 1], 0)
-                time_cost = wait_penalty * waiting_time + delay_penalty * delay_time
+                delay_time = max(arrival_time - p.due_dates[cust_id - 1], 0) * 9999999999
+                time_cost = waiting_time + delay_time
 
                 # Update sub-route time cost
                 sub_route_time_cost += time_cost
@@ -81,13 +75,7 @@ def get_fitness(individual, cost: float, p: Problem):
                 # Update last customer ID
                 previous_cust_id = cust_id
 
-            # Calculate transport cost
-            distance_depot = p.get_weight(previous_cust_id, 1)
-            sub_route_distance += distance_depot
-            sub_route_transport_cost = vehicle_setup_cost + transport_cost * sub_route_distance
-            # Obtain sub-route cost
-            sub_route_cost = sub_route_time_cost + sub_route_transport_cost
-            # Update total cost`
-            total_cost += sub_route_cost
+            distance += p.get_weight(previous_cust_id, 1)
+            total_cost += sub_route_time_cost + distance
 
     return len(route), total_cost

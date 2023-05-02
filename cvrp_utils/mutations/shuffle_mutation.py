@@ -4,7 +4,7 @@ import random
 def mutate(individual: list, prob: float) -> list:
     """
     Inputs : Individual route
-             Probability of mutation betwen (0,1)
+             Probability of mutation between (0,1)
     Outputs : Mutated individual according to the probability
     """
     size = len(individual)
