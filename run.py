@@ -2,8 +2,6 @@ import copy
 import math
 from typing import Callable, Any
 import random
-from visualizer.plot_vehicle_routes import plot_route
-from visualizer.plot_convergence import plot_conv
 from deap import creator, base, tools
 
 # from cvrp_utils.utils import print_routes, split_roads, calculate_distance_from_solution
@@ -189,5 +187,6 @@ def run(mutation_prob: float, crossover_prob: float, instance_path: str, populat
     p.define_model()
     p.init_population()
     best, costs = p.compile()
-    plot_route("1", splitter(best, PROBLEM), PROBLEM.weights, PROBLEM.weights[PROBLEM.depots[0]])
-    plot_conv("1", costs)
+    return PROBLEM, splitter(best, PROBLEM), costs
+    # plot_route("1", splitter(best, PROBLEM), PROBLEM.weights, PROBLEM.weights[PROBLEM.depots[0]])
+    # plot_conv("1", costs)
