@@ -19,7 +19,7 @@ if __name__ == "__main__":
             crossover_prob=1,
             instance_path="instances/R112.txt",
             population_size=300,
-            epochs=1,
+            epochs=10,
             fitness_func=get_fitness,
             mutation_func=mutate,
             crossover_func=crossover,

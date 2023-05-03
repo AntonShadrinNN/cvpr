@@ -2,8 +2,8 @@ import copy
 import math
 from typing import Callable, Any
 import random
-
-import deap.tools
+from visualizer.plot_vehicle_routes import plot_route
+from visualizer.plot_convergence import plot_conv
 from deap import creator, base, tools
 
 # from cvrp_utils.utils import print_routes, split_roads, calculate_distance_from_solution
@@ -75,6 +75,7 @@ class Vrp:
         best_cost = math.inf
         best_route = None
         cur_best = []
+        costs = []
         for epoch in range(self._epochs):
             # print(sum([x.fitness.values[1] for x in tools.selBest(self._population, 10)]))
             ind = tools.selBest(self._population, 1)[0]
@@ -83,6 +84,8 @@ class Vrp:
             if cost < best_cost:
                 best_cost, best_route = cost, ind
             r = min(cur_best, key=lambda x: x[1])[1]
+            costs.append(r)
+            print(costs)
             f.write(f'gen: {epoch}\tcost: {r}\n')
             if epoch % 10 == 0:
                 print(f'Evaluating generation {epoch}')
@@ -122,7 +125,7 @@ class Vrp:
 
         f.close()
         self._print_routes(best_route)
-        return best_route
+        return best_route, costs
 
     @staticmethod
     def _calculate_distance(solution: list[list]) -> float:
@@ -183,5 +186,6 @@ def run(mutation_prob: float, crossover_prob: float, instance_path: str, populat
     )
     p.define_model()
     p.init_population()
-    best = p.compile()
-    plot_routes(splitter(best, PROBLEM), PROBLEM.weights, PROBLEM.weights[PROBLEM.depots[0]])
+    best, costs = p.compile()
+    plot_route("1", splitter(best, PROBLEM), PROBLEM.weights, PROBLEM.weights[PROBLEM.depots[0]])
+    plot_conv("1", costs)
