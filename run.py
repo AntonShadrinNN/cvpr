@@ -19,7 +19,7 @@ class Vrp:
 
     def __init__(self, num_customers: int, population_size: int, epochs: int,
                  fitness_func: Callable, mutation_func: Callable, crossover_func: Callable,
-                 split_func: Callable):
+                 split_func: Callable, selection_func: Callable):
         self._population = None
         self.__tools = base.Toolbox()
         self._num_customers = num_customers
@@ -29,6 +29,7 @@ class Vrp:
         self._mutation_func = mutation_func
         self._crossover_func = crossover_func
         self._splitter = split_func
+        self._selection_func = selection_func
 
     def define_model(self):
         # Create fitness and individual classes
@@ -46,11 +47,11 @@ class Vrp:
         self.__tools.register('get_fitness', self._get_fitness, p=PROBLEM)
 
         # select ancestor for evolution
-        self.__tools.register('select', tools.selNSGA2)
+        self.__tools.register('select', self._selection_func)
 
-        self.__tools.register('select_roulette', tools.selRoulette)
-
-        self.__tools.register('select_tour', tools.selTournament, tournsize=50)
+        # self.__tools.register('select_roulette', tools.selRoulette)
+        #
+        # self.__tools.register('select', tools.selTournament, tournsize=50)
 
         # mutation func with constant probability
         self.__tools.register('mutate', self._mutation_func, prob=MUTATION_PROB)
@@ -67,7 +68,7 @@ class Vrp:
         for chromosome, fit in zip(not_weighted, fitnesses):
             chromosome.fitness.values = fit
 
-        self._population = self.__tools.select_tour(self._population, len(self._population))
+        self._population = self.__tools.select(self._population, len(self._population))
         print(f'Population successfully initialized with length {len(self._population)}!')
 
     def compile(self):
@@ -100,7 +101,7 @@ class Vrp:
             # descendants = list(map(self.__tools.clone, tools.selBest(self._population,
             #                                                          math.floor(self._population_size * 0.05))))
 
-            descendants = list(map(self.__tools.clone, self.__tools.select_tour(self._population,
+            descendants = list(map(self.__tools.clone, self.__tools.select(self._population,
                                                                                  math.ceil(
                                                                                      self._population_size * 1))))
             # print(len(descendants))
@@ -121,7 +122,7 @@ class Vrp:
             for chromosome, fit in zip(not_weighted, fitnesses):
                 chromosome.fitness.values = fit
             # deap.tools.cxOrdered()
-            self._population = self.__tools.select_tour(self._population + off, self._population_size)
+            self._population = self.__tools.select(self._population + off, self._population_size)
 
         f.close()
         self._print_routes(best_route)
@@ -167,8 +168,8 @@ class Vrp:
 def run(mutation_prob: float, crossover_prob: float, instance_path: str, population_size: int, epochs: int,
         fitness_func: Callable[[list, Any, int, int], tuple[int, float]],
         mutation_func: Callable[[list, float], list],
-        crossover_func: Callable[[list, list], tuple[list, list]], loader: Callable[[str], Any],
-        splitter: Callable):
+        crossover_func: Callable[[list, list], tuple[list, list]], selection_func: Callable,
+        loader: Callable[[str], Any], splitter: Callable):
     global PROBLEM, MUTATION_PROB, CROSSOVER_PROB, CAPACITY, DEPOT
     PROBLEM = loader(instance_path)
     MUTATION_PROB = mutation_prob
@@ -183,6 +184,7 @@ def run(mutation_prob: float, crossover_prob: float, instance_path: str, populat
         mutation_func=mutation_func,
         crossover_func=crossover_func,
         split_func=splitter,
+        selection_func=selection_func,
     )
     p.define_model()
     p.init_population()

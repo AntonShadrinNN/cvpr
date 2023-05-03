@@ -7,6 +7,7 @@ from cvrp_utils.crossovers.ordered import crossover
 from cvrp_utils.read.TWVRP import load
 # from tsplib95 import load
 from cvrp_utils.twcvrp import split_roads
+from cvrp_utils.selections import tournament_selection
 
 # CVRP
 # from utils.cvrp import get_fitness
@@ -24,7 +25,8 @@ if __name__ == "__main__":
             mutation_func=mutate,
             crossover_func=crossover,
             loader=load,
-            splitter=split_roads
+            splitter=split_roads,
+            selection_func=tournament_selection
             )
 # run.run(mutation_prob=0.04,
 #             crossover_prob=0.9,
