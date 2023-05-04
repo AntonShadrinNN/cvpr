@@ -4,8 +4,6 @@ from typing import Callable, Any
 import random
 from deap import creator, base, tools
 
-# from cvrp_utils.utils import print_routes, split_roads, calculate_distance_from_solution
-# from cvrp_utils.twcvrp import split_roads
 MUTATION_PROB = None
 CROSSOVER_PROB = None
 PROBLEM = None
@@ -44,30 +42,23 @@ class Vrp:
         # get individual fitness for chromosome
         self.__tools.register('get_fitness', self._get_fitness, p=PROBLEM)
 
-        # select ancestor for evolution
+        # selection func
         self.__tools.register('select', self._selection_func)
-
-        # self.__tools.register('select_roulette', tools.selRoulette)
-        #
-        # self.__tools.register('select', tools.selTournament, tournsize=50)
 
         # mutation func with constant probability
         self.__tools.register('mutate', self._mutation_func, prob=MUTATION_PROB)
 
         # crossover func
         self.__tools.register('crossover', self._crossover_func)
-        # self.__tools.register('crossover', deap.tools.cxOrdered)
 
     def init_population(self):
         self._population = self.__tools.population(n=self._population_size)
         not_weighted = [ind for ind in self._population if not ind.fitness.valid]
         fitnesses = list(map(self.__tools.get_fitness, not_weighted))
 
+        # weight the population using fitness function
         for chromosome, fit in zip(not_weighted, fitnesses):
             chromosome.fitness.values = fit
-
-        self._population = self.__tools.select(self._population, len(self._population))
-        print(f'Population successfully initialized with length {len(self._population)}!')
 
     def compile(self):
         f = open('res.txt', 'a', encoding='utf-8')
@@ -76,34 +67,26 @@ class Vrp:
         cur_best = []
         costs = []
         for epoch in range(self._epochs):
-            # print(sum([x.fitness.values[1] for x in tools.selBest(self._population, 10)]))
+            # select the best individual's fitness
             ind = tools.selBest(self._population, 1)[0]
+            # calculate distance cost
             cost = self._calculate_distance(self._splitter(ind, PROBLEM))
             cur_best.append((ind, cost))
             if cost < best_cost:
                 best_cost, best_route = cost, ind
-            r = min(cur_best, key=lambda x: x[1])[1]
-            costs.append(r)
-            print(costs)
-            f.write(f'gen: {epoch}\tcost: {r}\n')
+
+            # calculate min cost on every 10 generation
+            min_cost = min(cur_best, key=lambda x: x[1])[1]
+            costs.append(min_cost)
+            f.write(f'gen: {epoch}\tcost: {min_cost}\n')
             if epoch % 10 == 0:
                 print(f'Evaluating generation {epoch}')
                 print(f'Now the best individual is {cur_best[0]}\n'
-                      f'Cost: {r}\n')
+                      f'Cost: {min_cost}\n')
                 cur_best = []
 
-            # print(sum(x.fitness.values[1] for x in tools.selTournament(self._population, 10, tournsize=100)))
-            # print(sum([x.fitness.values[1] for x in tools.selBest(self._population, 10)]))
-            # print()
-            #
-            # descendants = list(map(self.__tools.clone, tools.selBest(self._population,
-            #                                                          math.floor(self._population_size * 0.05))))
-
-            descendants = list(map(self.__tools.clone, self.__tools.select(self._population,
-                                                                                 math.ceil(
-                                                                                     self._population_size * 1))))
-            # print(len(descendants))
-            # descendants = list(map(self.__tools.clone, descendants))
+            # select and clone offspring using selection func given
+            descendants = list(map(self.__tools.clone, self.__tools.select(self._population)))
             off = []
             # loop for crossover and mutation operations
             for chr1, chr2 in zip(descendants[::2], descendants[1::2]):
@@ -112,14 +95,17 @@ class Vrp:
                     del chr1.fitness.values, chr2.fitness.values
                 chr1 = self.__tools.mutate(chr1)
                 chr2 = self.__tools.mutate(chr2)
+                # update offspring
                 off.append(chr1)
                 off.append(chr2)
 
             not_weighted = [ind for ind in off if not ind.fitness.valid]
             fitnesses = self.__tools.map(self.__tools.get_fitness, not_weighted)
+            # weight new offspring
             for chromosome, fit in zip(not_weighted, fitnesses):
                 chromosome.fitness.values = fit
-            # deap.tools.cxOrdered()
+
+            # select best routes from old and new population
             self._population = self.__tools.select(self._population + off, self._population_size)
 
         f.close()
@@ -154,14 +140,6 @@ class Vrp:
             route_str = f'{route_str} - 0'
         print(f'  Cost for the transportation is {self._calculate_distance(route)}')
 
-    def find_best(self):
-        best = tools.selBest(self._population, 1)[0]
-        print(f'Unique individuals: {len(set(best))}')
-        print(f"Best individual is {best}")
-        print(f"Number of vechicles required are "
-              f"{best.fitness.values[0]}")
-        self._print_routes(best)
-
 
 def run(mutation_prob: float, crossover_prob: float, instance_path: str, population_size: int, epochs: int,
         fitness_func: Callable[[list, Any, int, int], tuple[int, float]],
@@ -188,5 +166,3 @@ def run(mutation_prob: float, crossover_prob: float, instance_path: str, populat
     p.init_population()
     best, costs = p.compile()
     return PROBLEM, splitter(best, PROBLEM), costs
-    # plot_route("1", splitter(best, PROBLEM), PROBLEM.weights, PROBLEM.weights[PROBLEM.depots[0]])
-    # plot_conv("1", costs)

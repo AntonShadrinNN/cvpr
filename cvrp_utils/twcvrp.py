@@ -43,6 +43,7 @@ def get_fitness(individual, p: Problem):
 
     route = split_roads(individual, p)
     max_vehicles_count = p.vehicles
+    # return great integer as invalid value
     total_cost = 9999999999
 
     if len(route) <= max_vehicles_count:
@@ -62,6 +63,7 @@ def get_fitness(individual, p: Problem):
                 arrival_time = elapsed_time + delta
 
                 waiting_time = max(p.ready_times[cust_id - 1] - arrival_time, 0)
+                # Make delay unprofitable
                 delay_time = max(arrival_time - p.due_dates[cust_id - 1], 0) * 9999999999
                 time_cost = waiting_time + delay_time
 

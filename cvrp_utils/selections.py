@@ -1,3 +1,5 @@
+# TODO: implement our own roulette wheel selection
+
 from deap.tools import selRoulette, selTournament, selStochasticUniversalSampling
 
 
