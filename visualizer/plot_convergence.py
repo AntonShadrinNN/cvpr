@@ -1,19 +1,25 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import make_interp_spline
+import os
 
-def plot_conv(test_name: str, costs: list[float]):
+
+def get_data(file_name: str):
+    with open(file_name) as file:
+        costs = list(map(float, file.readline().split()))
+
+    return costs
+
+
+def plot_conv(file_name: str):
+    costs = get_data(file_name)
     plt.figure(figsize=(10, 10))
     iterations = list(range(1, len(costs) + 1))
-    X_Y_Spline = make_interp_spline(iterations, costs)
-    X_ = np.linspace(min(iterations), max(iterations), 500)
-    Y_ = X_Y_Spline(X_)
+    x_y_spline = make_interp_spline(iterations, costs)
+    x_ = np.linspace(min(iterations), max(iterations), 500)
+    y_ = x_y_spline(x_)
 
-    plt.plot(X_, Y_)
+    plt.plot(x_, y_)
     plt.xlabel("Generations")
     plt.ylabel("Min distance")
-    plt.title(test_name)
-    plt.savefig(f"Fitness_{test_name}.png")
-
-
-# plot_conv("test", [3222, 3567, 2976])
+    plt.savefig(f"..\\data\\plots\\{os.path.splitext(os.path.split(file_name)[-1])[0]}.png")

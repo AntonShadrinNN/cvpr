@@ -35,7 +35,7 @@ def plot_route(test_name: str, routes: list[list[int]], coordinates: list[tuple[
     plt.xlabel("X - Coordinate")
     plt.ylabel("Y - Coordinate")
     plt.title(test_name)
-    plt.savefig(f"Route_{test_name}.png")
+    plt.savefig(f"data\\plots\\Route_{test_name}.png")
 
 # plot_route("test", [[1, 3, 2], [4, 5, 6]], [ (3, 0), (1, 3), (3, 2), (3, 3), (5, 2), (6, 3), (7, 1)], (3, 0))
 # plt.show()

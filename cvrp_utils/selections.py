@@ -11,5 +11,5 @@ def stochastic(population, size):
     return selStochasticUniversalSampling(population, size)
 
 
-def tournament_selection(population, population_size):
+def tournament(population, population_size):
     return selTournament(population, population_size, tournsize=100)
