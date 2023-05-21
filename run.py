@@ -86,7 +86,7 @@ class Vrp:
                 cur_best = []
 
             # select and clone offspring using selection func given
-            descendants = list(map(self.__tools.clone, self.__tools.select(self._population)))
+            descendants = list(map(self.__tools.clone, self.__tools.select(self._population, self._population_size)))
             off = []
             # loop for crossover and mutation operations
             for chr1, chr2 in zip(descendants[::2], descendants[1::2]):
