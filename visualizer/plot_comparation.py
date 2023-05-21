@@ -1,7 +1,8 @@
+import os
 import matplotlib.pyplot as plt
-import numpy as np
-from scipy.interpolate import make_interp_spline
 import csv
+
+
 def get_data(file_name: str):
     with open(file_name) as file:
         r = csv.DictReader(file)
@@ -14,7 +15,7 @@ def get_data(file_name: str):
     return costs
 
 
-def plot_compare(file_name):
+def plot_compare(file_name: str):
     costs = get_data(file_name)
     plt.figure(figsize=(10, 10))
 
@@ -22,6 +23,6 @@ def plot_compare(file_name):
         x = [i for i in range(len(costs[key]))]
         plt.plot(x, costs[key], label=key)
     plt.legend()
-    plt.xlabel("test_number")
-    plt.ylabel("Min distance")
-    plt.savefig("..\\data\\plots\\Fitness_selections.png")
+    plt.xlabel(" Test number")
+    plt.ylabel("Min cost")
+    plt.savefig(f"..\\data\\plots\\Fitness_selections_{os.path.splitext(os.path.split(file_name)[-1])[0]}.png")

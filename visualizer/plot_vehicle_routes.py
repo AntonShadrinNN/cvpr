@@ -1,5 +1,30 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+def get_data(file_name: str):
+    routes = []
+    coordinates = []
+    depot = ()
+    with open(file_name, encoding="utf-8") as file:
+        cnt_coord = int(file.readline())
+
+        depot = tuple(map(int, file.readline().split()))
+        coordinates.append(depot)
+
+        for _ in range(cnt_coord - 1):
+            coord = tuple(map(int, file.readline().split()))
+            coordinates.append(coord)
+
+        cnt_rout = int(file.readline())
+
+        for _ in range(cnt_rout):
+            rout = list(map(int, file.readline().split()))
+            routes.append(rout)
+
+    return depot, coordinates, routes
 
 
 def plot_sub_route(sub_route, coordinates, depot):
@@ -20,7 +45,9 @@ def plot_sub_route(sub_route, coordinates, depot):
                  [depot[1], coordinates[sub_route[-1] - 1][1]], c=color)
 
 
-def plot_route(test_name: str, routes: list[list[int]], coordinates: list[tuple[int, int]], depot: tuple[int, int]):
+def plot_routes(file_name: str):
+    depot, coordinates, routes = get_data(file_name)
+
     plt.figure(figsize=(10, 10))
     plt.scatter(depot[0], depot[1], c='green', s=100)
     plt.text(depot[0], depot[1], "depot", fontsize=12)
@@ -34,9 +61,6 @@ def plot_route(test_name: str, routes: list[list[int]], coordinates: list[tuple[
 
     plt.xlabel("X - Coordinate")
     plt.ylabel("Y - Coordinate")
-    plt.title(test_name)
-    plt.savefig(f"data\\plots\\Route_{test_name}.png")
-
-# plot_route("test", [[1, 3, 2], [4, 5, 6]], [ (3, 0), (1, 3), (3, 2), (3, 3), (5, 2), (6, 3), (7, 1)], (3, 0))
-# plt.show()
-
+    title = f"{os.path.splitext(os.path.split(file_name)[-1])[0]}"
+    plt.title(title)
+    plt.savefig(f"..\\data\\plots\\{os.path.splitext(os.path.split(file_name)[-1])[0]}.png")
